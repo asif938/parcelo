@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# stray duplicate build output Turbopack sometimes emits on this Windows path
+/assignments/
+
 # production
 /build
 
