@@ -17,9 +17,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useLogout } from "@/hooks/use-auth";
-import { ROLE_LABEL, type AppRole } from "@/components/layout/nav-config";
+import type { AuthUser } from "@/stores/auth-store";
 
-export function AppHeader({ title, role }: { title: string; role: AppRole }) {
+export function AppHeader({ title, user }: { title: string; user: AuthUser }) {
   const logoutMutation = useLogout();
 
   return (
@@ -41,12 +41,17 @@ export function AppHeader({ title, role }: { title: string; role: AppRole }) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm" aria-label="Account menu">
             <Avatar className="size-7">
-              <AvatarFallback>{ROLE_LABEL[role].slice(0, 1)}</AvatarFallback>
+              <AvatarFallback>{user.name.slice(0, 1).toUpperCase()}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>{ROLE_LABEL[role]} account</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel className="flex flex-col gap-0.5">
+            <span className="truncate text-sm font-medium">{user.name}</span>
+            <span className="truncate text-xs font-normal text-muted-foreground">
+              {user.email}
+            </span>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <UserIcon /> Profile

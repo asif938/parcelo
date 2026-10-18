@@ -2,18 +2,11 @@ import { NextResponse } from "next/server";
 
 import { BackendApiError, backendFetch } from "@/lib/api/backend";
 import { clearAuthCookies, getAuthCookies, setAuthCookies } from "@/lib/auth/cookies";
-import type { AuthUser } from "@/stores/auth-store";
+import { fetchCurrentUser } from "@/lib/auth/session";
 
 interface RefreshResult {
   accessToken: string;
   refreshToken: string;
-}
-
-async function fetchMe(accessToken: string) {
-  const result = await backendFetch<{ user: AuthUser }>("/users/me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  return result.user;
 }
 
 export async function GET() {
@@ -24,7 +17,7 @@ export async function GET() {
   }
 
   try {
-    const user = await fetchMe(accessToken);
+    const user = await fetchCurrentUser(accessToken);
     return NextResponse.json({ success: true, data: { user } });
   } catch (error) {
     if (error instanceof BackendApiError && error.status === 401 && refreshToken) {
@@ -34,7 +27,7 @@ export async function GET() {
           body: JSON.stringify({ refreshToken }),
         });
         await setAuthCookies(tokens.accessToken, tokens.refreshToken);
-        const user = await fetchMe(tokens.accessToken);
+        const user = await fetchCurrentUser(tokens.accessToken);
         return NextResponse.json({ success: true, data: { user } });
       } catch {
         await clearAuthCookies();

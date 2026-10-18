@@ -2,23 +2,23 @@ import type { ReactNode } from "react";
 
 import { AppHeader } from "@/components/layout/app-header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import type { AppRole } from "@/components/layout/nav-config";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import type { AuthUser } from "@/stores/auth-store";
 
 export function AppShell({
-  role,
+  user,
   title,
   children,
 }: {
-  role: AppRole;
+  user: AuthUser;
   title: string;
   children: ReactNode;
 }) {
   return (
     <SidebarProvider>
-      <AppSidebar role={role} />
+      <AppSidebar role={user.role} />
       <SidebarInset>
-        <AppHeader role={role} title={title} />
+        <AppHeader user={user} title={title} />
         <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>

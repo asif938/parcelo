@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
 
-import { AppShell } from "@/components/layout/app-shell";
+import { ProtectedLayout } from "@/components/layout/protected-layout";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return (
-    <AppShell role="ADMIN" title="Overview">
-      {children}
-    </AppShell>
-  );
+  return <ProtectedLayout title="Overview">{children}</ProtectedLayout>;
 }

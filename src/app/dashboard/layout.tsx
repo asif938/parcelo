@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
 
-import { AppShell } from "@/components/layout/app-shell";
+import { ProtectedLayout } from "@/components/layout/protected-layout";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  return (
-    <AppShell role="CUSTOMER" title="Dashboard">
-      {children}
-    </AppShell>
-  );
+  return <ProtectedLayout title="Dashboard">{children}</ProtectedLayout>;
 }
