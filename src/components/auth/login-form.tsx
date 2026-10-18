@@ -22,17 +22,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useLogin } from "@/hooks/use-auth";
 import { DEMO_ACCOUNTS } from "@/lib/demo-accounts";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
 export function LoginForm() {
+  const loginMutation = useLogin();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
   function onSubmit(values: LoginInput) {
-    console.log("login submit", values);
+    loginMutation.mutate(values);
   }
 
   function handleDemoLogin(email: string, password: string) {
@@ -81,8 +83,8 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="mt-2" disabled={form.formState.isSubmitting}>
-              Login
+            <Button type="submit" className="mt-2" disabled={loginMutation.isPending}>
+              {loginMutation.isPending ? "Logging in..." : "Login"}
             </Button>
           </form>
         </Form>
@@ -101,6 +103,7 @@ export function LoginForm() {
                 key={account.role}
                 type="button"
                 variant="outline"
+                disabled={loginMutation.isPending}
                 onClick={() => handleDemoLogin(account.email, account.password)}
               >
                 {account.label}
@@ -110,6 +113,7 @@ export function LoginForm() {
           <Button
             type="button"
             variant="outline"
+            disabled={loginMutation.isPending}
             onClick={() =>
               handleDemoLogin(DEMO_ACCOUNTS[2].email, DEMO_ACCOUNTS[2].password)
             }

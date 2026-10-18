@@ -16,9 +16,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useLogout } from "@/hooks/use-auth";
 import { ROLE_LABEL, type AppRole } from "@/components/layout/nav-config";
 
 export function AppHeader({ title, role }: { title: string; role: AppRole }) {
+  const logoutMutation = useLogout();
+
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
       <SidebarTrigger className="-ml-1" />
@@ -52,7 +55,11 @@ export function AppHeader({ title, role }: { title: string; role: AppRole }) {
             <Settings /> Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem
+            variant="destructive"
+            disabled={logoutMutation.isPending}
+            onSelect={() => logoutMutation.mutate()}
+          >
             <LogOut /> Log out
           </DropdownMenuItem>
         </DropdownMenuContent>

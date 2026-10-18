@@ -17,10 +17,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useLogout } from "@/hooks/use-auth";
 import { ROLE_LABEL, ROLE_NAV, type AppRole } from "@/components/layout/nav-config";
 
 export function AppSidebar({ role }: { role: AppRole }) {
   const pathname = usePathname();
+  const logoutMutation = useLogout();
   const items = ROLE_NAV[role];
 
   return (
@@ -59,7 +61,11 @@ export function AppSidebar({ role }: { role: AppRole }) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Log out">
+            <SidebarMenuButton
+              tooltip="Log out"
+              disabled={logoutMutation.isPending}
+              onClick={() => logoutMutation.mutate()}
+            >
               <LogOut />
               <span>Log out</span>
             </SidebarMenuButton>

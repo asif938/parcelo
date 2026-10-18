@@ -23,16 +23,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useRegister } from "@/hooks/use-auth";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 
 export function RegisterForm() {
+  const registerMutation = useRegister();
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { name: "", email: "", password: "", phone: "", role: "CUSTOMER" },
   });
 
   function onSubmit(values: RegisterInput) {
-    console.log("register submit", values);
+    registerMutation.mutate(values);
   }
 
   return (
@@ -133,8 +135,8 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="mt-2" disabled={form.formState.isSubmitting}>
-              Create account
+            <Button type="submit" className="mt-2" disabled={registerMutation.isPending}>
+              {registerMutation.isPending ? "Creating account..." : "Create account"}
             </Button>
           </form>
         </Form>
