@@ -13,3 +13,10 @@ export const PROTECTED_ROUTE_PREFIXES: Record<AppRole, string> = {
 };
 
 export const AUTH_ONLY_ROUTES = ["/login", "/register"] as const;
+
+export function roleForProtectedPath(pathname: string): AppRole | null {
+  const entry = (Object.entries(PROTECTED_ROUTE_PREFIXES) as [AppRole, string][]).find(
+    ([, prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+  return entry ? entry[0] : null;
+}
