@@ -1,4 +1,4 @@
-import { ShipmentDetail } from "@/components/shipments/shipment-detail";
+import { CourierShipmentPage } from "@/components/shipments/courier-shipment-page";
 
 export default async function ProviderShipmentDetailPage({
   params,
@@ -6,5 +6,5 @@ export default async function ProviderShipmentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <ShipmentDetail id={id} backHref="/provider/shipments" />;
+  return <CourierShipmentPage id={id} />;
 }

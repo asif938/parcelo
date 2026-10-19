@@ -16,6 +16,11 @@ export const SHIPMENT_STATUS_LABEL: Record<ShipmentStatus, string> = {
   CANCELLED: "Cancelled",
 };
 
+export const SHIPMENT_STATUSES = Object.keys(SHIPMENT_STATUS_LABEL) as [
+  ShipmentStatus,
+  ...ShipmentStatus[],
+];
+
 const DESTRUCTIVE_STATUSES = new Set<ShipmentStatus>([
   "FAILED_DELIVERY_ATTEMPT",
   "RETURN_TO_SENDER",

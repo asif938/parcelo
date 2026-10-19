@@ -35,3 +35,15 @@ export interface AuditLogListResult {
   logs: AuditLogEntry[];
   meta: PaginationMeta;
 }
+
+export interface CourierSummary {
+  id: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+}
+
+export interface CourierListResult {
+  users: CourierSummary[];
+  meta: PaginationMeta;
+}

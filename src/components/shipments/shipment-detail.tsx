@@ -2,6 +2,7 @@
 
 import { ArrowLeft, MapPin, Package, Truck } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,10 +17,12 @@ export function ShipmentDetail({
   id,
   backHref,
   fullPageHref,
+  actions,
 }: {
   id: string;
   backHref?: string;
   fullPageHref?: string;
+  actions?: ReactNode;
 }) {
   const shipmentQuery = useShipment(id);
   const trackingQuery = useShipmentTracking(id);
@@ -65,9 +68,12 @@ export function ShipmentDetail({
             {shipment.serviceType} · Created {formatDateTime(shipment.createdAt)}
           </p>
         </div>
-        <Badge variant={shipmentStatusBadgeVariant(shipment.status)} className="text-sm">
-          {SHIPMENT_STATUS_LABEL[shipment.status]}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant={shipmentStatusBadgeVariant(shipment.status)} className="text-sm">
+            {SHIPMENT_STATUS_LABEL[shipment.status]}
+          </Badge>
+          {actions}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
