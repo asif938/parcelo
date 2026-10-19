@@ -50,3 +50,47 @@ export interface ShipmentListResult {
   shipments: Shipment[];
   meta: PaginationMeta;
 }
+
+export interface CreateShipmentInput {
+  pickupAddressId: string;
+  deliveryAddressId: string;
+  serviceType: "STANDARD" | "EXPRESS";
+  parcelWeightKg: number;
+  parcelDescription?: string;
+  parcelValue?: number;
+}
+
+export interface UpdateShipmentInput {
+  deliveryAddressId?: string;
+  parcelDescription?: string;
+  parcelValue?: number;
+}
+
+export interface UpdateShipmentStatusInput {
+  status: ShipmentStatus;
+  note?: string;
+  location?: string;
+}
+
+export interface AssignCourierInput {
+  courierId?: string;
+}
+
+export interface ShipmentDetailResult {
+  shipment: Shipment;
+}
+
+export interface ShipmentStatusHistoryEntry {
+  id: string;
+  status: ShipmentStatus;
+  note: string | null;
+  location: string | null;
+  createdAt: string;
+  actor: { id: string; name: string; role: string } | null;
+}
+
+export interface ShipmentTrackingResult {
+  trackingNumber: string;
+  status: ShipmentStatus;
+  history: ShipmentStatusHistoryEntry[];
+}

@@ -9,6 +9,23 @@ export async function fetchJson<T>(url: string): Promise<T> {
   return json.data;
 }
 
+export async function mutateJson<T>(
+  url: string,
+  method: "POST" | "PATCH" | "PUT" | "DELETE",
+  body?: unknown,
+): Promise<T> {
+  const res = await fetch(url, {
+    method,
+    headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  const json = (await res.json().catch(() => ({}))) as ApiEnvelope<T>;
+  if (!res.ok || !json.success) {
+    throw new Error(json.message ?? "Something went wrong. Please try again.");
+  }
+  return json.data as T;
+}
+
 export function toQueryString(params: object) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params) as [string, string | number | undefined][]) {

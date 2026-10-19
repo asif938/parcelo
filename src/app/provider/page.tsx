@@ -1,12 +1,13 @@
 "use client";
 
 import { CheckCircle2, ClipboardList, PackageSearch, Truck } from "lucide-react";
+import Link from "next/link";
 
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TableMessageRow } from "@/components/dashboard/table-message-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -91,6 +92,11 @@ export default function ProviderTasksPage() {
       <Card>
         <CardHeader>
           <CardTitle>Assigned Shipments</CardTitle>
+          <CardAction>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/provider/shipments">View all</Link>
+            </Button>
+          </CardAction>
         </CardHeader>
         <CardContent>
           <Table>
