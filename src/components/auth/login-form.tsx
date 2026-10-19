@@ -1,9 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { useState } from "react";
 
+import type { AppRole } from "@/components/layout/nav-config";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,11 +26,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useLogin } from "@/hooks/use-auth";
-import { DEMO_ACCOUNTS } from "@/lib/demo-accounts";
+import { DEMO_ACCOUNTS, type DemoAccount } from "@/lib/demo-accounts";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const loginMutation = useLogin(callbackUrl);
+  const [pendingRole, setPendingRole] = useState<AppRole | null>(null);
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
@@ -37,10 +41,15 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
     loginMutation.mutate(values);
   }
 
-  function handleDemoLogin(email: string, password: string) {
-    form.setValue("email", email);
-    form.setValue("password", password);
+  function handleDemoLogin(account: DemoAccount) {
+    setPendingRole(account.role);
+    form.setValue("email", account.email);
+    form.setValue("password", account.password);
     form.handleSubmit(onSubmit)();
+  }
+
+  function isDemoPending(role: AppRole) {
+    return loginMutation.isPending && pendingRole === role;
   }
 
   return (
@@ -104,8 +113,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
                 type="button"
                 variant="outline"
                 disabled={loginMutation.isPending}
-                onClick={() => handleDemoLogin(account.email, account.password)}
+                onClick={() => handleDemoLogin(account)}
               >
+                {isDemoPending(account.role) && <Loader2 className="size-4 animate-spin" />}
                 {account.label}
               </Button>
             ))}
@@ -114,10 +124,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
             type="button"
             variant="outline"
             disabled={loginMutation.isPending}
-            onClick={() =>
-              handleDemoLogin(DEMO_ACCOUNTS[2].email, DEMO_ACCOUNTS[2].password)
-            }
+            onClick={() => handleDemoLogin(DEMO_ACCOUNTS[2])}
           >
+            {isDemoPending(DEMO_ACCOUNTS[2].role) && <Loader2 className="size-4 animate-spin" />}
             {DEMO_ACCOUNTS[2].label}
           </Button>
         </div>
