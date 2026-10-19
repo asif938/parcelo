@@ -26,8 +26,8 @@ import { useLogin } from "@/hooks/use-auth";
 import { DEMO_ACCOUNTS } from "@/lib/demo-accounts";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
-export function LoginForm() {
-  const loginMutation = useLogin();
+export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
+  const loginMutation = useLogin(callbackUrl);
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },

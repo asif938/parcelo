@@ -1,9 +1,7 @@
 import { cookies } from "next/headers";
 
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/auth/constants";
 import { decodeAccessToken } from "@/lib/auth/jwt";
-
-export const ACCESS_TOKEN_COOKIE = "parcelo_at";
-export const REFRESH_TOKEN_COOKIE = "parcelo_rt";
 
 const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 30;
 

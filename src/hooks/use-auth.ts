@@ -29,6 +29,10 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export const AUTH_ME_QUERY_KEY = ["auth", "me"] as const;
 
+function isSafeRedirect(url: string | undefined): url is string {
+  return typeof url === "string" && url.startsWith("/") && !url.startsWith("//");
+}
+
 export function useCurrentUser() {
   const setUser = useAuthStore((state) => state.setUser);
 
@@ -49,7 +53,7 @@ export function useCurrentUser() {
   });
 }
 
-export function useLogin() {
+export function useLogin(callbackUrl?: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
@@ -61,7 +65,7 @@ export function useLogin() {
       setUser(user);
       queryClient.setQueryData(AUTH_ME_QUERY_KEY, user);
       toast.success(`Welcome back, ${user.name}`);
-      router.push(ROLE_HOME[user.role]);
+      router.push(isSafeRedirect(callbackUrl) ? callbackUrl : ROLE_HOME[user.role]);
     },
     onError: (error: Error) => {
       toast.error(error.message);
