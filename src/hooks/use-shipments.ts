@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { useOptimisticShipmentPatch } from "@/hooks/use-optimistic-shipment-patch";
 import { fetchJson, mutateJson, toQueryString } from "@/lib/api/client";
 import type {
   AssignCourierInput,
@@ -111,68 +112,85 @@ export function useUpdateShipment(id: string) {
 
 export function useDeleteShipment() {
   const invalidateShipments = useInvalidateShipments();
+  const { remove } = useOptimisticShipmentPatch();
 
   return useMutation({
     mutationFn: (id: string) => mutateJson<null>(`/api/shipments/${id}`, "DELETE"),
-    onSuccess: () => {
-      invalidateShipments();
-      toast.success("Shipment deleted.");
+    onMutate: (id: string) => remove(id),
+    onSuccess: () => toast.success("Shipment deleted."),
+    onError: (error: Error, _id, rollback) => {
+      rollback?.();
+      toast.error(error.message);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onSettled: () => invalidateShipments(),
   });
 }
 
 export function useCancelShipment() {
   const invalidateShipments = useInvalidateShipments();
+  const { patch } = useOptimisticShipmentPatch();
 
   return useMutation({
     mutationFn: (id: string) => mutateJson<Shipment>(`/api/shipments/${id}/cancel`, "POST"),
-    onSuccess: () => {
-      invalidateShipments();
-      toast.success("Shipment cancelled.");
+    onMutate: (id: string) => patch(id, { status: "CANCELLED" }),
+    onSuccess: () => toast.success("Shipment cancelled."),
+    onError: (error: Error, _id, rollback) => {
+      rollback?.();
+      toast.error(error.message);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onSettled: () => invalidateShipments(),
   });
 }
 
 export function useRequestPickup() {
   const invalidateShipments = useInvalidateShipments();
+  const { patch } = useOptimisticShipmentPatch();
 
   return useMutation({
     mutationFn: (id: string) =>
       mutateJson<Shipment>(`/api/shipments/${id}/pickup-request`, "POST"),
-    onSuccess: () => {
-      invalidateShipments();
-      toast.success("Pickup requested.");
+    onMutate: (id: string) => patch(id, { status: "PICKUP_SCHEDULED" }),
+    onSuccess: () => toast.success("Pickup requested."),
+    onError: (error: Error, _id, rollback) => {
+      rollback?.();
+      toast.error(error.message);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onSettled: () => invalidateShipments(),
   });
 }
 
 export function useAssignCourier() {
   const invalidateShipments = useInvalidateShipments();
+  const { patch } = useOptimisticShipmentPatch();
 
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: AssignCourierInput }) =>
       mutateJson<Shipment>(`/api/shipments/${id}/assign-courier`, "POST", input),
-    onSuccess: () => {
-      invalidateShipments();
-      toast.success("Courier assigned.");
+    onMutate: ({ id }: { id: string; input: AssignCourierInput }) =>
+      patch(id, { status: "COURIER_ASSIGNED" }),
+    onSuccess: () => toast.success("Courier assigned."),
+    onError: (error: Error, _variables, rollback) => {
+      rollback?.();
+      toast.error(error.message);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onSettled: () => invalidateShipments(),
   });
 }
 
 export function useUpdateShipmentStatus() {
   const invalidateShipments = useInvalidateShipments();
+  const { patch } = useOptimisticShipmentPatch();
 
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateShipmentStatusInput }) =>
       mutateJson<Shipment>(`/api/shipments/${id}/status`, "PATCH", input),
-    onSuccess: () => {
-      invalidateShipments();
-      toast.success("Status updated.");
+    onMutate: ({ id, input }: { id: string; input: UpdateShipmentStatusInput }) =>
+      patch(id, { status: input.status }),
+    onSuccess: () => toast.success("Status updated."),
+    onError: (error: Error, _variables, rollback) => {
+      rollback?.();
+      toast.error(error.message);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onSettled: () => invalidateShipments(),
   });
 }

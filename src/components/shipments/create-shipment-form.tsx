@@ -2,12 +2,14 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { FieldPath } from "react-hook-form";
 
 import { FormSelectField } from "@/components/forms/form-select-field";
 import { FormTextField } from "@/components/forms/form-text-field";
 import { FormTextareaField } from "@/components/forms/form-textarea-field";
+import { ImageDropField } from "@/components/forms/image-drop-field";
 import { StepIndicator } from "@/components/forms/step-indicator";
 import { AddAddressDialog } from "@/components/shipments/add-address-dialog";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAddresses } from "@/hooks/use-addresses";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
+import { useObjectUrl } from "@/hooks/use-object-url";
 import { useCreateShipment } from "@/hooks/use-shipments";
 import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { createShipmentSchema, type CreateShipmentFormValues } from "@/lib/validations/shipment";
@@ -52,6 +55,7 @@ export function CreateShipmentForm() {
   });
 
   const { step, isFirstStep, isLastStep, goNext, goBack } = useMultiStepForm(form, STEP_FIELDS);
+  const [parcelPhoto, setParcelPhoto] = useState<File | null>(null);
 
   function onSubmit(values: CreateShipmentFormValues) {
     createShipment.mutate(
@@ -76,6 +80,7 @@ export function CreateShipmentForm() {
   const values = form.getValues();
   const pickupAddress = addresses.find((address) => address.id === values.pickupAddressId);
   const deliveryAddress = addresses.find((address) => address.id === values.deliveryAddressId);
+  const parcelPhotoPreviewUrl = useObjectUrl(parcelPhoto);
 
   return (
     <Card>
@@ -186,6 +191,13 @@ export function CreateShipmentForm() {
                     min="0"
                     placeholder="0.00"
                   />
+
+                  <ImageDropField
+                    label="Parcel photo (optional)"
+                    caption="Kept with this order for your own reference — not sent to the server."
+                    value={parcelPhoto}
+                    onChange={setParcelPhoto}
+                  />
                 </div>
               )}
 
@@ -224,6 +236,16 @@ export function CreateShipmentForm() {
                     <div className="flex items-start justify-between gap-4">
                       <span className="text-muted-foreground">Declared value</span>
                       <span className="text-right font-medium">${values.parcelValue}</span>
+                    </div>
+                  )}
+                  {parcelPhoto && parcelPhotoPreviewUrl && (
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="text-muted-foreground">Parcel photo</span>
+                      <img
+                        src={parcelPhotoPreviewUrl}
+                        alt={parcelPhoto.name}
+                        className="size-14 rounded-md object-cover"
+                      />
                     </div>
                   )}
                 </div>

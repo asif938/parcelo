@@ -2,6 +2,7 @@
 
 import { Bell, LogOut, Settings, User as UserIcon } from "lucide-react";
 
+import { RecentlyViewedMenu } from "@/components/layout/recently-viewed-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,8 @@ export function AppHeader({ title, user }: { title: string; user: AuthUser }) {
           2
         </Badge>
       </Button>
+
+      <RecentlyViewedMenu role={user.role} />
 
       <ThemeToggle />
 

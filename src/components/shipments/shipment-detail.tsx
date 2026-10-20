@@ -3,6 +3,7 @@
 import { ArrowLeft, MapPin, Package, PackageX, Truck } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { useShipment, useShipmentTracking } from "@/hooks/use-shipments";
 import { ApiError } from "@/lib/api/client";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { SHIPMENT_STATUS_LABEL, shipmentStatusBadgeVariant } from "@/lib/shipment-status";
+import { useRecentlyViewedStore } from "@/stores/recently-viewed-store";
 import type { ShipmentStatusHistoryEntry } from "@/types/shipment";
 
 export function ShipmentDetail({
@@ -27,6 +29,17 @@ export function ShipmentDetail({
 }) {
   const shipmentQuery = useShipment(id);
   const trackingQuery = useShipmentTracking(id);
+  const recordVisit = useRecentlyViewedStore((state) => state.recordVisit);
+
+  useEffect(() => {
+    const shipment = shipmentQuery.data;
+    if (!shipment) return;
+    recordVisit({
+      id: shipment.id,
+      trackingNumber: shipment.trackingNumber,
+      status: shipment.status,
+    });
+  }, [shipmentQuery.data, recordVisit]);
 
   if (shipmentQuery.isLoading) {
     return <ShipmentDetailSkeleton />;
