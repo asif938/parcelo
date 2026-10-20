@@ -1,10 +1,20 @@
 import type { ApiEnvelope } from "@/types/api";
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 export async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
   const json = (await res.json().catch(() => ({}))) as ApiEnvelope<T>;
   if (!res.ok || !json.success || json.data === undefined) {
-    throw new Error(json.message ?? "Something went wrong. Please try again.");
+    throw new ApiError(json.message ?? "Something went wrong. Please try again.", res.status);
   }
   return json.data;
 }
@@ -21,7 +31,7 @@ export async function mutateJson<T>(
   });
   const json = (await res.json().catch(() => ({}))) as ApiEnvelope<T>;
   if (!res.ok || !json.success) {
-    throw new Error(json.message ?? "Something went wrong. Please try again.");
+    throw new ApiError(json.message ?? "Something went wrong. Please try again.", res.status);
   }
   return json.data as T;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, MapPin, Package, Truck } from "lucide-react";
+import { ArrowLeft, MapPin, Package, PackageX, Truck } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useShipment, useShipmentTracking } from "@/hooks/use-shipments";
+import { ApiError } from "@/lib/api/client";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { SHIPMENT_STATUS_LABEL, shipmentStatusBadgeVariant } from "@/lib/shipment-status";
 import type { ShipmentStatusHistoryEntry } from "@/types/shipment";
@@ -29,6 +30,25 @@ export function ShipmentDetail({
 
   if (shipmentQuery.isLoading) {
     return <ShipmentDetailSkeleton />;
+  }
+
+  if (shipmentQuery.isError && shipmentQuery.error instanceof ApiError && shipmentQuery.error.status === 404) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+          <PackageX className="size-8 text-muted-foreground" />
+          <p className="text-sm font-medium">Shipment not found</p>
+          <p className="text-sm text-muted-foreground">
+            It may have been removed, or the link could be incorrect.
+          </p>
+          {backHref && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={backHref}>Back to shipments</Link>
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
   }
 
   if (shipmentQuery.isError || !shipmentQuery.data) {
