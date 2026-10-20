@@ -5,6 +5,9 @@ import { ListChecks } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { FormSelectField } from "@/components/forms/form-select-field";
+import { FormTextField } from "@/components/forms/form-text-field";
+import { FormTextareaField } from "@/components/forms/form-textarea-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,24 +17,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useUpdateShipmentStatus } from "@/hooks/use-shipments";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { SHIPMENT_STATUS_LABEL, SHIPMENT_STATUSES } from "@/lib/shipment-status";
 import { updateStatusSchema, type UpdateStatusFormValues } from "@/lib/validations/shipment";
 import type { ShipmentStatus } from "@/types/shipment";
@@ -61,7 +49,10 @@ export function UpdateStatusDialog({
           location: values.location || undefined,
         },
       },
-      { onSuccess: () => setOpen(false) },
+      {
+        onSuccess: () => setOpen(false),
+        onError: (error) => applyServerErrors(form, error),
+      },
     );
   }
 
@@ -78,55 +69,27 @@ export function UpdateStatusDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
+            <FormSelectField
               control={form.control}
               name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>New status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {SHIPMENT_STATUSES.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {SHIPMENT_STATUS_LABEL[status]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="New status"
+              placeholder="Select status"
+              options={SHIPMENT_STATUSES.map((status) => ({
+                value: status,
+                label: SHIPMENT_STATUS_LABEL[status],
+              }))}
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Chicago hub" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Location (optional)"
+              placeholder="e.g. Chicago hub"
             />
-            <FormField
+            <FormTextareaField
               control={form.control}
               name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="What happened?" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Note (optional)"
+              placeholder="What happened?"
             />
             <DialogFooter>
               <Button type="submit" disabled={updateStatus.isPending}>

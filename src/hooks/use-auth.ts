@@ -4,28 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { mutateJson } from "@/lib/api/client";
 import { ROLE_HOME } from "@/lib/routes";
 import type { LoginInput, RegisterInput } from "@/lib/validations/auth";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
-
-interface ApiEnvelope<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-}
-
-async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-  const json = (await res.json().catch(() => ({}))) as ApiEnvelope<T>;
-  if (!res.ok || !json.success) {
-    throw new Error(json.message ?? "Something went wrong. Please try again.");
-  }
-  return json.data as T;
-}
+import type { ApiEnvelope } from "@/types/api";
 
 export const AUTH_ME_QUERY_KEY = ["auth", "me"] as const;
 
@@ -60,7 +43,7 @@ export function useLogin(callbackUrl?: string) {
 
   return useMutation({
     mutationFn: (values: LoginInput) =>
-      request<{ user: AuthUser }>("/api/auth/login", { body: JSON.stringify(values) }),
+      mutateJson<{ user: AuthUser }>("/api/auth/login", "POST", values),
     onSuccess: ({ user }) => {
       setUser(user);
       queryClient.setQueryData(AUTH_ME_QUERY_KEY, user);
@@ -78,7 +61,7 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (values: RegisterInput) =>
-      request<{ user: AuthUser }>("/api/auth/register", { body: JSON.stringify(values) }),
+      mutateJson<{ user: AuthUser }>("/api/auth/register", "POST", values),
     onSuccess: () => {
       toast.success("Account created. Please log in.");
       router.push("/login");
@@ -95,7 +78,7 @@ export function useLogout() {
   const setUser = useAuthStore((state) => state.setUser);
 
   return useMutation({
-    mutationFn: () => request<null>("/api/auth/logout"),
+    mutationFn: () => mutateJson<null>("/api/auth/logout", "POST"),
     onSuccess: () => {
       setUser(null);
       queryClient.removeQueries({ queryKey: AUTH_ME_QUERY_KEY });

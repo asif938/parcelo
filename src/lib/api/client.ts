@@ -1,12 +1,14 @@
-import type { ApiEnvelope } from "@/types/api";
+import type { ApiEnvelope, ApiFieldError } from "@/types/api";
 
 export class ApiError extends Error {
   status: number;
+  errors?: ApiFieldError[];
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, errors?: ApiFieldError[]) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.errors = errors;
   }
 }
 
@@ -14,7 +16,11 @@ export async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
   const json = (await res.json().catch(() => ({}))) as ApiEnvelope<T>;
   if (!res.ok || !json.success || json.data === undefined) {
-    throw new ApiError(json.message ?? "Something went wrong. Please try again.", res.status);
+    throw new ApiError(
+      json.message ?? "Something went wrong. Please try again.",
+      res.status,
+      json.errors,
+    );
   }
   return json.data;
 }
@@ -31,7 +37,11 @@ export async function mutateJson<T>(
   });
   const json = (await res.json().catch(() => ({}))) as ApiEnvelope<T>;
   if (!res.ok || !json.success) {
-    throw new ApiError(json.message ?? "Something went wrong. Please try again.", res.status);
+    throw new ApiError(
+      json.message ?? "Something went wrong. Please try again.",
+      res.status,
+      json.errors,
+    );
   }
   return json.data as T;
 }

@@ -5,8 +5,14 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
+export interface ApiFieldError {
+  field: string;
+  message: string;
+}
+
 export interface ApiEnvelope<T> {
   success: boolean;
   message?: string;
   data?: T;
+  errors?: ApiFieldError[];
 }

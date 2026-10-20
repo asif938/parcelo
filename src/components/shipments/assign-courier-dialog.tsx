@@ -5,6 +5,7 @@ import { UserCog } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { FormSelectField } from "@/components/forms/form-select-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,23 +15,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { useCouriers } from "@/hooks/use-couriers";
 import { useAssignCourier } from "@/hooks/use-shipments";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { assignCourierSchema, type AssignCourierFormValues } from "@/lib/validations/shipment";
 
 export function AssignCourierDialog({ shipmentId }: { shipmentId: string }) {
@@ -46,7 +34,10 @@ export function AssignCourierDialog({ shipmentId }: { shipmentId: string }) {
   function onSubmit(values: AssignCourierFormValues) {
     assignCourier.mutate(
       { id: shipmentId, input: values },
-      { onSuccess: () => setOpen(false) },
+      {
+        onSuccess: () => setOpen(false),
+        onError: (error) => applyServerErrors(form, error),
+      },
     );
   }
 
@@ -63,31 +54,15 @@ export function AssignCourierDialog({ shipmentId }: { shipmentId: string }) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
+            <FormSelectField
               control={form.control}
               name="courierId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Courier</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={couriersQuery.isLoading ? "Loading..." : "Select courier"}
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {(couriersQuery.data ?? []).map((courier) => (
-                        <SelectItem key={courier.id} value={courier.id}>
-                          {courier.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Courier"
+              placeholder={couriersQuery.isLoading ? "Loading..." : "Select courier"}
+              options={(couriersQuery.data ?? []).map((courier) => ({
+                value: courier.id,
+                label: courier.name,
+              }))}
             />
             <DialogFooter>
               <Button type="submit" disabled={assignCourier.isPending}>

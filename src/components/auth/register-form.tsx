@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 
+import { FormTextField } from "@/components/forms/form-text-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,18 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useRegister } from "@/hooks/use-auth";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 
 export function RegisterForm() {
@@ -34,7 +28,9 @@ export function RegisterForm() {
   });
 
   function onSubmit(values: RegisterInput) {
-    registerMutation.mutate(values);
+    registerMutation.mutate(values, {
+      onError: (error) => applyServerErrors(form, error),
+    });
   }
 
   return (
@@ -46,62 +42,36 @@ export function RegisterForm() {
       <CardContent className="flex flex-col gap-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
+            <FormTextField
               control={form.control}
               name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jane Doe" autoComplete="name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Full name"
+              placeholder="Jane Doe"
+              autoComplete="name"
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="you@example.com" autoComplete="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="new-password"
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone (optional)</FormLabel>
-                  <FormControl>
-                    <Input type="tel" placeholder="+1 555 010 0100" autoComplete="tel" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Phone (optional)"
+              type="tel"
+              placeholder="+1 555 010 0100"
+              autoComplete="tel"
             />
             <FormField
               control={form.control}

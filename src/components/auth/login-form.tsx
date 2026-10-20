@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import type { AppRole } from "@/components/layout/nav-config";
+import { FormTextField } from "@/components/forms/form-text-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,18 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { useLogin } from "@/hooks/use-auth";
 import { DEMO_ACCOUNTS, type DemoAccount } from "@/lib/demo-accounts";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
@@ -38,7 +32,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   });
 
   function onSubmit(values: LoginInput) {
-    loginMutation.mutate(values);
+    loginMutation.mutate(values, {
+      onError: (error) => applyServerErrors(form, error),
+    });
   }
 
   function handleDemoLogin(account: DemoAccount) {
@@ -61,36 +57,21 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       <CardContent className="flex flex-col gap-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
+            <FormTextField
               control={form.control}
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="you@example.com" autoComplete="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="current-password"
             />
             <Button type="submit" className="mt-2" disabled={loginMutation.isPending}>
               {loginMutation.isPending ? "Logging in..." : "Login"}

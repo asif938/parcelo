@@ -5,6 +5,9 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { FormSelectField } from "@/components/forms/form-select-field";
+import { FormTextField } from "@/components/forms/form-text-field";
+import { FormTextareaField } from "@/components/forms/form-textarea-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,25 +17,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useAddresses } from "@/hooks/use-addresses";
 import { useUpdateShipment } from "@/hooks/use-shipments";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { updateShipmentSchema, type UpdateShipmentFormValues } from "@/lib/validations/shipment";
 import type { Shipment } from "@/types/shipment";
 
@@ -57,7 +45,10 @@ export function UpdateShipmentDialog({ shipment }: { shipment: Shipment }) {
         parcelDescription: values.parcelDescription || undefined,
         parcelValue: values.parcelValue ? Number(values.parcelValue) : undefined,
       },
-      { onSuccess: () => setOpen(false) },
+      {
+        onSuccess: () => setOpen(false),
+        onError: (error) => applyServerErrors(form, error),
+      },
     );
   }
 
@@ -74,55 +65,24 @@ export function UpdateShipmentDialog({ shipment }: { shipment: Shipment }) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
+            <FormSelectField
               control={form.control}
               name="deliveryAddressId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delivery address</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select address" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {(addressesQuery.data ?? []).map((address) => (
-                        <SelectItem key={address.id} value={address.id}>
-                          {address.label} — {address.city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Delivery address"
+              placeholder="Select address"
+              options={(addressesQuery.data ?? []).map((address) => ({
+                value: address.id,
+                label: `${address.label} — ${address.city}`,
+              }))}
             />
-            <FormField
-              control={form.control}
-              name="parcelDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
+            <FormTextareaField control={form.control} name="parcelDescription" label="Description" />
+            <FormTextField
               control={form.control}
               name="parcelValue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Declared value (optional)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" min="0" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Declared value (optional)"
+              type="number"
+              step="0.01"
+              min="0"
             />
             <DialogFooter>
               <Button type="submit" disabled={updateShipment.isPending}>

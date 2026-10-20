@@ -4,29 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
+import { FormSelectField } from "@/components/forms/form-select-field";
+import { FormTextField } from "@/components/forms/form-text-field";
+import { FormTextareaField } from "@/components/forms/form-textarea-field";
 import { AddAddressDialog } from "@/components/shipments/add-address-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { useAddresses } from "@/hooks/use-addresses";
 import { useCreateShipment } from "@/hooks/use-shipments";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { createShipmentSchema, type CreateShipmentFormValues } from "@/lib/validations/shipment";
 
 export function CreateShipmentForm() {
@@ -60,6 +48,7 @@ export function CreateShipmentForm() {
         onSuccess: (shipment) => {
           router.push(`/dashboard/shipments/${shipment.id}`);
         },
+        onError: (error) => applyServerErrors(form, error),
       },
     );
   }
@@ -88,53 +77,25 @@ export function CreateShipmentForm() {
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
                 <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
-                  <FormField
+                  <FormSelectField
                     control={form.control}
                     name="pickupAddressId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pickup address</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select address" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {addresses.map((address) => (
-                              <SelectItem key={address.id} value={address.id}>
-                                {address.label} — {address.city}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Pickup address"
+                    placeholder="Select address"
+                    options={addresses.map((address) => ({
+                      value: address.id,
+                      label: `${address.label} — ${address.city}`,
+                    }))}
                   />
-                  <FormField
+                  <FormSelectField
                     control={form.control}
                     name="deliveryAddressId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Delivery address</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select address" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {addresses.map((address) => (
-                              <SelectItem key={address.id} value={address.id}>
-                                {address.label} — {address.city}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Delivery address"
+                    placeholder="Select address"
+                    options={addresses.map((address) => ({
+                      value: address.id,
+                      label: `${address.label} — ${address.city}`,
+                    }))}
                   />
                 </div>
                 <AddAddressDialog
@@ -148,68 +109,42 @@ export function CreateShipmentForm() {
                 />
               </div>
 
-              <FormField
+              <FormSelectField
                 control={form.control}
                 name="serviceType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Service type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select service" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="STANDARD">Standard</SelectItem>
-                        <SelectItem value="EXPRESS">Express</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Service type"
+                placeholder="Select service"
+                options={[
+                  { value: "STANDARD", label: "Standard" },
+                  { value: "EXPRESS", label: "Express" },
+                ]}
               />
 
-              <FormField
+              <FormTextField
                 control={form.control}
                 name="parcelWeightKg"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Parcel weight (kg)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.1" min="0" placeholder="2.5" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Parcel weight (kg)"
+                type="number"
+                step="0.1"
+                min="0"
+                placeholder="2.5"
               />
 
-              <FormField
+              <FormTextareaField
                 control={form.control}
                 name="parcelDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description (optional)</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="What's in the parcel?" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Description (optional)"
+                placeholder="What's in the parcel?"
               />
 
-              <FormField
+              <FormTextField
                 control={form.control}
                 name="parcelValue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Declared value (optional)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" min="0" placeholder="0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Declared value (optional)"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
               />
 
               <Button type="submit" disabled={createShipment.isPending} className="self-start">

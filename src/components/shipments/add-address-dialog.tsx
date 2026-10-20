@@ -5,6 +5,8 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { FormSelectField } from "@/components/forms/form-select-field";
+import { FormTextField } from "@/components/forms/form-text-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,24 +16,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { useCreateAddress } from "@/hooks/use-addresses";
 import { useZones } from "@/hooks/use-zones";
+import { applyServerErrors } from "@/lib/forms/apply-server-errors";
 import { createAddressSchema, type CreateAddressFormValues } from "@/lib/validations/shipment";
 import type { Address } from "@/types/address";
 
@@ -59,6 +47,7 @@ export function AddAddressDialog({ onCreated }: { onCreated: (address: Address) 
         setOpen(false);
         form.reset();
       },
+      onError: (error) => applyServerErrors(form, error),
     });
   }
 
@@ -75,98 +64,48 @@ export function AddAddressDialog({ onCreated }: { onCreated: (address: Address) 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
+            <FormTextField
               control={form.control}
               name="label"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Label</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Home, Office, Warehouse..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Label"
+              placeholder="Home, Office, Warehouse..."
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="addressLine"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Main St" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Address"
+              placeholder="123 Main St"
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormTextField
                 control={form.control}
                 name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="New York" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="City"
+                placeholder="New York"
               />
-              <FormField
+              <FormSelectField
                 control={form.control}
                 name="zoneId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Zone</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={zonesQuery.isLoading ? "Loading..." : "Select zone"}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {(zonesQuery.data ?? []).map((zone) => (
-                          <SelectItem key={zone.id} value={zone.id}>
-                            {zone.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Zone"
+                placeholder={zonesQuery.isLoading ? "Loading..." : "Select zone"}
+                options={(zonesQuery.data ?? []).map((zone) => ({
+                  value: zone.id,
+                  label: zone.name,
+                }))}
               />
             </div>
-            <FormField
+            <FormTextField
               control={form.control}
               name="contactName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jane Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Contact name"
+              placeholder="Jane Doe"
             />
-            <FormField
+            <FormTextField
               control={form.control}
               name="contactPhone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact phone</FormLabel>
-                  <FormControl>
-                    <Input type="tel" placeholder="+1 555 010 0100" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Contact phone"
+              type="tel"
+              placeholder="+1 555 010 0100"
             />
             <DialogFooter>
               <Button type="submit" disabled={createAddress.isPending}>

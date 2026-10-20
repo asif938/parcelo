@@ -1,7 +1,7 @@
 import { env } from "@/lib/env";
 
 export interface BackendFieldError {
-  path: string;
+  field: string;
   message: string;
 }
 
