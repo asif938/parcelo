@@ -3,6 +3,8 @@
 import { AlertTriangle, Building2, Package, ScrollText, Tag, Users, Wallet } from "lucide-react";
 import Link from "next/link";
 
+import { CourierUtilizationBar } from "@/components/charts/courier-utilization-bar";
+import { ShipmentStatusChart } from "@/components/charts/shipment-status-chart";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TableMessageRow } from "@/components/dashboard/table-message-row";
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { useAdminDashboardStats, useAuditLogs } from "@/hooks/use-admin-dashboard";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import { statusCountsFromRecord } from "@/lib/shipment-status";
 
 const RECENT_ACTIVITY_ROWS = 5;
 
@@ -44,6 +47,7 @@ export default function AdminOverviewPage() {
   const openIssues =
     (stats.data?.shipmentsByStatus.FAILED_DELIVERY_ATTEMPT ?? 0) +
     (stats.data?.shipmentsByStatus.RETURN_TO_SENDER ?? 0);
+  const statusCounts = statusCountsFromRecord(stats.data?.shipmentsByStatus ?? {});
 
   return (
     <div className="flex flex-col gap-6">
@@ -93,6 +97,39 @@ export default function AdminOverviewPage() {
             </Link>
           </Button>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Shipments by Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ShipmentStatusChart
+              data={statusCounts}
+              isLoading={stats.isLoading}
+              isError={stats.isError}
+              errorMessage={stats.error instanceof Error ? stats.error.message : undefined}
+              onRetry={() => stats.refetch()}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Courier Utilization</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CourierUtilizationBar
+              busy={stats.data?.courierUtilization.busy ?? 0}
+              available={stats.data?.courierUtilization.available ?? 0}
+              isLoading={stats.isLoading}
+              isError={stats.isError}
+              errorMessage={stats.error instanceof Error ? stats.error.message : undefined}
+              onRetry={() => stats.refetch()}
+            />
+          </CardContent>
+        </Card>
       </div>
 
       <Card>

@@ -33,3 +33,33 @@ export function shipmentStatusBadgeVariant(status: ShipmentStatus) {
   if (status === "DELIVERED") return "secondary" as const;
   return "outline" as const;
 }
+
+export function isExceptionStatus(status: ShipmentStatus) {
+  return DESTRUCTIVE_STATUSES.has(status);
+}
+
+export interface ShipmentStatusCount {
+  status: ShipmentStatus;
+  label: string;
+  count: number;
+}
+
+export function statusCountsFromRecord(
+  record: Partial<Record<ShipmentStatus, number>>,
+): ShipmentStatusCount[] {
+  return SHIPMENT_STATUSES.map((status) => ({
+    status,
+    label: SHIPMENT_STATUS_LABEL[status],
+    count: record[status] ?? 0,
+  }));
+}
+
+export function statusCountsFromShipments(
+  shipments: { status: ShipmentStatus }[],
+): ShipmentStatusCount[] {
+  const record: Partial<Record<ShipmentStatus, number>> = {};
+  for (const shipment of shipments) {
+    record[shipment.status] = (record[shipment.status] ?? 0) + 1;
+  }
+  return statusCountsFromRecord(record);
+}

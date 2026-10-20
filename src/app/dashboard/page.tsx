@@ -3,6 +3,7 @@
 import { CheckCircle2, Package, PackagePlus, Truck, Wallet } from "lucide-react";
 import Link from "next/link";
 
+import { ShipmentStatusChart } from "@/components/charts/shipment-status-chart";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TableMessageRow } from "@/components/dashboard/table-message-row";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,11 @@ import {
 } from "@/components/ui/table";
 import { useShipments } from "@/hooks/use-shipments";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { SHIPMENT_STATUS_LABEL, shipmentStatusBadgeVariant } from "@/lib/shipment-status";
+import {
+  SHIPMENT_STATUS_LABEL,
+  shipmentStatusBadgeVariant,
+  statusCountsFromShipments,
+} from "@/lib/shipment-status";
 import type { ShipmentStatus } from "@/types/shipment";
 
 const RECENT_SHIPMENT_ROWS = 4;
@@ -39,6 +44,7 @@ export default function DashboardOverviewPage() {
   const totalSpent = shipments
     .filter((s) => s.status !== "CANCELLED")
     .reduce((sum, s) => sum + Number.parseFloat(s.priceAmount), 0);
+  const statusCounts = statusCountsFromShipments(shipments);
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,6 +92,21 @@ export default function DashboardOverviewPage() {
           isError={isError}
         />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Shipments by Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ShipmentStatusChart
+            data={statusCounts}
+            isLoading={isLoading}
+            isError={isError}
+            errorMessage={error instanceof Error ? error.message : undefined}
+            onRetry={() => refetch()}
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
