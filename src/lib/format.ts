@@ -15,6 +15,26 @@ export function formatDateTime(iso: string) {
   );
 }
 
+const RELATIVE_TIME_UNITS: { unit: Intl.RelativeTimeFormatUnit; ms: number }[] = [
+  { unit: "year", ms: 365 * 24 * 60 * 60 * 1000 },
+  { unit: "month", ms: 30 * 24 * 60 * 60 * 1000 },
+  { unit: "day", ms: 24 * 60 * 60 * 1000 },
+  { unit: "hour", ms: 60 * 60 * 1000 },
+  { unit: "minute", ms: 60 * 1000 },
+];
+
+export function formatRelativeTime(iso: string) {
+  const diffMs = new Date(iso).getTime() - Date.now();
+  const formatter = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
+
+  for (const { unit, ms } of RELATIVE_TIME_UNITS) {
+    if (Math.abs(diffMs) >= ms) {
+      return formatter.format(Math.round(diffMs / ms), unit);
+    }
+  }
+  return formatter.format(Math.round(diffMs / 1000), "second");
+}
+
 export function isToday(iso: string) {
   const date = new Date(iso);
   const now = new Date();

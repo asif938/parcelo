@@ -24,6 +24,7 @@ export interface NavItem {
 export const ROLE_NAV: Record<AppRole, NavItem[]> = {
   CUSTOMER: [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { title: "My Shipments", href: "/dashboard/shipments", icon: Package },
     { title: "New Shipment", href: "/dashboard/shipments/new", icon: PackagePlus },
     { title: "Payments", href: "/dashboard/payments", icon: CreditCard },
     { title: "Profile", href: "/dashboard/profile", icon: User },

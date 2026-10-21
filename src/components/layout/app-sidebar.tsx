@@ -24,6 +24,9 @@ export function AppSidebar({ role }: { role: AppRole }) {
   const pathname = usePathname();
   const logoutMutation = useLogout();
   const items = ROLE_NAV[role];
+  const activeHref = items
+    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
     <Sidebar collapsible="icon">
@@ -36,12 +39,7 @@ export function AppSidebar({ role }: { role: AppRole }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/dashboard" &&
-                    item.href !== "/provider" &&
-                    item.href !== "/admin" &&
-                    pathname.startsWith(`${item.href}/`));
+                const isActive = item.href === activeHref;
 
                 return (
                   <SidebarMenuItem key={item.href}>
