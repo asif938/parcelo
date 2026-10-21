@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAdminDashboardStats, useAuditLogs } from "@/hooks/use-admin-dashboard";
+import { humanizeAction } from "@/lib/audit-log";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { statusCountsFromRecord } from "@/lib/shipment-status";
 
@@ -30,14 +31,6 @@ const QUICK_LINKS = [
   { title: "Pricing", href: "/admin/pricing", icon: Tag },
   { title: "Audit Logs", href: "/admin/audit-logs", icon: ScrollText },
 ];
-
-function humanizeAction(action: string) {
-  return action
-    .toLowerCase()
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
 
 export default function AdminOverviewPage() {
   const stats = useAdminDashboardStats();

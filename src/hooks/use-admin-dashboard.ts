@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchJson, toQueryString } from "@/lib/api/client";
-import type { AdminDashboardStats, AuditLogListResult } from "@/types/admin";
+import type { AdminDashboardStats, AuditLogListResult, AuditLogQueryParams } from "@/types/admin";
 
 export function useAdminDashboardStats() {
   return useQuery({
@@ -12,7 +12,7 @@ export function useAdminDashboardStats() {
   });
 }
 
-export function useAuditLogs(params: { limit?: number; page?: number } = {}) {
+export function useAuditLogs(params: AuditLogQueryParams = {}) {
   return useQuery({
     queryKey: ["admin", "audit-logs", params],
     queryFn: () => fetchJson<AuditLogListResult>(`/api/admin/audit-logs${toQueryString(params)}`),

@@ -53,6 +53,17 @@ export const createAddressSchema = z.object({
 
 export type CreateAddressFormValues = z.infer<typeof createAddressSchema>;
 
+export const updateAddressSchema = z.object({
+  label: z.string().trim().min(1, "Label is required").max(100),
+  addressLine: z.string().trim().min(1, "Address is required").max(200),
+  city: z.string().trim().min(1, "City is required").max(100),
+  zoneId: z.string().min(1, "Zone is required"),
+  contactName: z.string().trim().min(1, "Contact name is required").max(100),
+  contactPhone: z.string().trim().min(1, "Contact phone is required").max(30),
+});
+
+export type UpdateAddressFormValues = z.infer<typeof updateAddressSchema>;
+
 export const updateStatusSchema = z.object({
   status: z.enum(SHIPMENT_STATUSES),
   note: z.string().trim().max(500).optional(),

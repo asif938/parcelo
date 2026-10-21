@@ -8,3 +8,15 @@ export interface Zone {
 export interface ZoneListResult {
   zones: Zone[];
 }
+
+export interface CreateZoneInput {
+  name: string;
+  city: string;
+  region?: string;
+}
+
+export interface UpdateZoneInput {
+  name?: string;
+  city?: string;
+  region?: string;
+}

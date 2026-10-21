@@ -21,3 +21,12 @@ export interface CreateAddressInput {
   contactName: string;
   contactPhone: string;
 }
+
+export interface UpdateAddressInput {
+  label?: string;
+  addressLine?: string;
+  city?: string;
+  zoneId?: string;
+  contactName?: string;
+  contactPhone?: string;
+}
