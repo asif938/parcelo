@@ -4,6 +4,7 @@ import {
   ClipboardList,
   CreditCard,
   LayoutDashboard,
+  Mail,
   Package,
   PackagePlus,
   ScrollText,
@@ -40,6 +41,7 @@ export const ROLE_NAV: Record<AppRole, NavItem[]> = {
     { title: "Users", href: "/admin/users", icon: Users },
     { title: "Zones & Hubs", href: "/admin/zones-hubs", icon: Building2 },
     { title: "Pricing", href: "/admin/pricing", icon: Tag },
+    { title: "Contact Info", href: "/admin/contact", icon: Mail },
     { title: "Audit Logs", href: "/admin/audit-logs", icon: ScrollText },
   ],
 };
